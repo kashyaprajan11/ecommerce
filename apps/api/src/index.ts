@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+const productSchema = require("../")
 type ProductInput = {
   _id: number;
   name: string;
@@ -50,12 +51,13 @@ const root = {
     return products;
   },
   createProduct: ({ productInput }: any) => {
-    const product = {
-      _id: Math.floor(Math.random() * 10000),
-      name: productInput.name,
-      price: productInput.price,
-      description: productInput.description,
-    };
+    // const product = {
+    //   _id: Math.floor(Math.random() * 10000),
+    //   name: productInput.name,
+    //   price: productInput.price,
+    //   description: productInput.description,
+    // };
+
     products.push(product);
     return product;
   },
