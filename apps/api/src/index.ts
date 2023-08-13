@@ -5,9 +5,10 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const productSchema = require("../")
+const Product = require("./models/models");
+
 type ProductInput = {
-  _id: number;
+  _id?: number;
   name: string;
   price: string;
   description?: string;
@@ -48,7 +49,7 @@ const schema = buildSchema(`
 // The root provides a resolver function for each API endpoint
 const root = {
   products: () => {
-    return products;
+    return Product.find();
   },
   createProduct: ({ productInput }: any) => {
     // const product = {
@@ -58,8 +59,19 @@ const root = {
     //   description: productInput.description,
     // };
 
-    products.push(product);
-    return product;
+    const newProduct = new Product({
+      name: productInput.name,
+      price: productInput.price,
+      description: productInput.description,
+    });
+
+    return newProduct
+      .save()
+      .then((result: any) => {
+        console.log("saved", result);
+        return result;
+      })
+      .catch((err: any) => console.error(err));
   },
 };
 
@@ -75,11 +87,24 @@ app.use(
     graphiql: true,
   })
 );
-app.listen(4000, () => {
-  console.log("Running a GraphQL API server at http://localhost:4000/graphql");
-});
 
-mongoose.connect(
-  `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@100x-ecommerce.7wun4td.mongodb.net/ecommerce`,
-  { dbName: "100x-ecommerce" }
-);
+//  mongoose.connect(
+//   `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@100x-ecommerce.7wun4td.mongodb.net/ecommerce`
+// ).then(() => console.log("successful")).catch(() => console.log("error while connecting"))
+
+(async () => {
+  try {
+    await mongoose.connect(
+      `mongodb+srv://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@100x-ecommerce.7wun4td.mongodb.net/ecommerce`,
+      { dbName: "100x-ecommerce" }
+    );
+    console.log("Connection successful");
+    app.listen(4000, () => {
+      console.log(
+        "Running a GraphQL API server at http://localhost:4000/graphql"
+      );
+    });
+  } catch (err) {
+    console.error("Failed connecting to database", err);
+  }
+})();
